@@ -1,8 +1,9 @@
 import {Message, Messenger} from "@atomiqlabs/base";
 import {finalizeEvent, generateSecretKey} from "nostr-tools/pure";
-import {SimplePool} from "nostr-tools";
+import {verifyEvent} from "nostr-tools/pure";
 import {AbstractRelay} from "nostr-tools/abstract-relay";
 import {MessageDeduplicator} from "./MessageDeduplicator";
+import {AbstractSimplePool} from "nostr-tools/abstract-pool";
 
 const KIND = 28643; //In range 20000-29999 of ephemeral events
 
@@ -10,18 +11,22 @@ export class NostrMessenger implements Messenger {
 
     secretKey: Uint8Array;
     relays: string[];
-    pool: SimplePool;
+    pool: AbstractSimplePool;
     reconnectTimeout: number;
 
     callbacks: ((msg: Message) => void)[] = [];
     messageDeduplicator: MessageDeduplicator = new MessageDeduplicator();
 
     constructor(relays: string[], options?: {
-        reconnectTimeout?: number
+        reconnectTimeout?: number,
+        wsImplementation?: typeof WebSocket
     }) {
         this.secretKey = generateSecretKey();
         this.relays = relays;
-        this.pool = new SimplePool();
+        this.pool = new AbstractSimplePool({
+            websocketImplementation: options?.wsImplementation,
+            verifyEvent
+        });
         this.reconnectTimeout = options?.reconnectTimeout ?? 15*1000;
     }
 

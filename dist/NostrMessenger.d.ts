@@ -1,15 +1,16 @@
 import { Message, Messenger } from "@atomiqlabs/base";
-import { SimplePool } from "nostr-tools";
 import { MessageDeduplicator } from "./MessageDeduplicator";
+import { AbstractSimplePool } from "nostr-tools/abstract-pool";
 export declare class NostrMessenger implements Messenger {
     secretKey: Uint8Array;
     relays: string[];
-    pool: SimplePool;
+    pool: AbstractSimplePool;
     reconnectTimeout: number;
     callbacks: ((msg: Message) => void)[];
     messageDeduplicator: MessageDeduplicator;
     constructor(relays: string[], options?: {
         reconnectTimeout?: number;
+        wsImplementation?: typeof WebSocket;
     });
     broadcast(msg: Message): Promise<void>;
     private stopped;

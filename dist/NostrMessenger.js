@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NostrMessenger = void 0;
 const base_1 = require("@atomiqlabs/base");
 const pure_1 = require("nostr-tools/pure");
-const nostr_tools_1 = require("nostr-tools");
+const pure_2 = require("nostr-tools/pure");
 const MessageDeduplicator_1 = require("./MessageDeduplicator");
+const abstract_pool_1 = require("nostr-tools/abstract-pool");
 const KIND = 28643; //In range 20000-29999 of ephemeral events
 class NostrMessenger {
     constructor(relays, options) {
@@ -14,7 +15,10 @@ class NostrMessenger {
         this.subscribed = false;
         this.secretKey = (0, pure_1.generateSecretKey)();
         this.relays = relays;
-        this.pool = new nostr_tools_1.SimplePool();
+        this.pool = new abstract_pool_1.AbstractSimplePool({
+            websocketImplementation: options?.wsImplementation,
+            verifyEvent: pure_2.verifyEvent
+        });
         this.reconnectTimeout = options?.reconnectTimeout ?? 15 * 1000;
     }
     async broadcast(msg) {
