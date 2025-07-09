@@ -1,11 +1,24 @@
 {
   "name": "@atomiqlabs/messenger-nostr",
-  "version": "1.0.0-dev.0",
+  "version": "1.0.0-dev.1",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types:": "./dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "/dist",
+    "/src"
+  ],
+  "keywords": [
+    "Solana",
+    "Bitcoin",
+    "Cross-chain",
+    "Cryptocurrency",
+    "Bridge",
+    "Trustless"
+  ],
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
