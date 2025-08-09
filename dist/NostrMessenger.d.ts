@@ -1,14 +1,15 @@
-import { Message, Messenger } from "@atomiqlabs/base";
+import { BitcoinNetwork, Message, Messenger } from "@atomiqlabs/base";
 import { MessageDeduplicator } from "./MessageDeduplicator";
 import { AbstractSimplePool } from "nostr-tools/abstract-pool";
 export declare class NostrMessenger implements Messenger {
+    network: BitcoinNetwork;
     secretKey: Uint8Array;
     relays: string[];
     pool: AbstractSimplePool;
     reconnectTimeout: number;
     callbacks: ((msg: Message) => void)[];
     messageDeduplicator: MessageDeduplicator;
-    constructor(relays: string[], options?: {
+    constructor(network: BitcoinNetwork, relays: string[], options?: {
         reconnectTimeout?: number;
         wsImplementation?: typeof WebSocket;
     });

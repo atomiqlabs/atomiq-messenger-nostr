@@ -6,13 +6,19 @@ const pure_1 = require("nostr-tools/pure");
 const pure_2 = require("nostr-tools/pure");
 const MessageDeduplicator_1 = require("./MessageDeduplicator");
 const abstract_pool_1 = require("nostr-tools/abstract-pool");
-const KIND = 28643; //In range 20000-29999 of ephemeral events
+const KINDS = {
+    [base_1.BitcoinNetwork.MAINNET]: 28643,
+    [base_1.BitcoinNetwork.TESTNET]: 28644,
+    [base_1.BitcoinNetwork.TESTNET4]: 28645,
+    [base_1.BitcoinNetwork.REGTEST]: 28646,
+};
 class NostrMessenger {
-    constructor(relays, options) {
+    constructor(network, relays, options) {
         this.callbacks = [];
         this.messageDeduplicator = new MessageDeduplicator_1.MessageDeduplicator();
         this.stopped = true;
         this.subscribed = false;
+        this.network = network;
         this.secretKey = (0, pure_1.generateSecretKey)();
         this.relays = relays;
         this.pool = new abstract_pool_1.AbstractSimplePool({
@@ -23,7 +29,7 @@ class NostrMessenger {
     }
     async broadcast(msg) {
         const signedEvent = (0, pure_1.finalizeEvent)({
-            kind: KIND,
+            kind: KINDS[this.network],
             created_at: Math.floor(Date.now() / 1000),
             tags: [],
             content: JSON.stringify(msg.serialize())
@@ -51,7 +57,7 @@ class NostrMessenger {
             setTimeout(() => this.connectRelay(relayUrl), this.reconnectTimeout);
             return;
         }
-        relay.subscribe([{ kinds: [KIND] }], {
+        relay.subscribe([{ kinds: [KINDS[this.network]] }], {
             onevent: (event) => {
                 if (this.messageDeduplicator.isDuplicate(event.id))
                     return;
