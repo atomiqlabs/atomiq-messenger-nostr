@@ -27,6 +27,8 @@ export class NostrMessenger implements Messenger {
         reconnectTimeout?: number,
         wsImplementation?: typeof WebSocket
     }) {
+        options ??= {};
+        options.wsImplementation ??= typeof window !== "undefined" && typeof window.WebSocket !== "undefined" ? window.WebSocket : require("ws");
         this.network = network;
         this.secretKey = generateSecretKey();
         this.relays = relays;

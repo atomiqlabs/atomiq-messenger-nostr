@@ -18,6 +18,8 @@ class NostrMessenger {
         this.messageDeduplicator = new MessageDeduplicator_1.MessageDeduplicator();
         this.stopped = true;
         this.subscribed = false;
+        options ??= {};
+        options.wsImplementation ??= typeof window !== "undefined" && typeof window.WebSocket !== "undefined" ? window.WebSocket : require("ws");
         this.network = network;
         this.secretKey = (0, pure_1.generateSecretKey)();
         this.relays = relays;
