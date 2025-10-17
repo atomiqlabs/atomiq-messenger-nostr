@@ -39,6 +39,10 @@ export class NostrMessenger implements Messenger {
         this.reconnectTimeout = options?.reconnectTimeout ?? 15*1000;
     }
 
+    warmup() {
+        return Promise.any(this.relays.map(relay => this.pool.ensureRelay(relay))).then(val => {});
+    }
+
     async broadcast(msg: Message): Promise<void> {
         const signedEvent = finalizeEvent({
             kind: KINDS[this.network],

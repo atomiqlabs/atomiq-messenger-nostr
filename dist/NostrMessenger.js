@@ -29,6 +29,9 @@ class NostrMessenger {
         });
         this.reconnectTimeout = options?.reconnectTimeout ?? 15 * 1000;
     }
+    warmup() {
+        return Promise.any(this.relays.map(relay => this.pool.ensureRelay(relay))).then(val => { });
+    }
     async broadcast(msg) {
         const signedEvent = (0, pure_1.finalizeEvent)({
             kind: KINDS[this.network],

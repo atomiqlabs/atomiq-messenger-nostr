@@ -13,6 +13,7 @@ export declare class NostrMessenger implements Messenger {
         reconnectTimeout?: number;
         wsImplementation?: typeof WebSocket;
     });
+    warmup(): Promise<void>;
     broadcast(msg: Message): Promise<void>;
     private stopped;
     init(): Promise<void>;
