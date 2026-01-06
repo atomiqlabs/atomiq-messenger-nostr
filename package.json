@@ -1,6 +1,6 @@
 {
   "name": "@atomiqlabs/messenger-nostr",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "./dist/index.js",
   "types:": "./dist/index.d.ts",
@@ -23,7 +23,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@atomiqlabs/base": "^12.0.1",
-    "nostr-tools": "^2.15.0",
+    "nostr-tools": "^2.19.4",
     "ws": "^8.18.3"
   },
   "devDependencies": {

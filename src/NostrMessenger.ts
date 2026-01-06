@@ -1,7 +1,7 @@
 import {BitcoinNetwork, Message, Messenger} from "@atomiqlabs/base";
 import {finalizeEvent, generateSecretKey} from "nostr-tools/pure";
 import {verifyEvent} from "nostr-tools/pure";
-import {AbstractRelay} from "nostr-tools/abstract-relay";
+import {AbstractRelay, Subscription} from "nostr-tools/abstract-relay";
 import {MessageDeduplicator} from "./MessageDeduplicator";
 import {AbstractSimplePool} from "nostr-tools/abstract-pool";
 
@@ -34,7 +34,8 @@ export class NostrMessenger implements Messenger {
         this.relays = relays;
         this.pool = new AbstractSimplePool({
             websocketImplementation: options?.wsImplementation,
-            verifyEvent
+            verifyEvent,
+            enablePing: true
         });
         this.reconnectTimeout = options?.reconnectTimeout ?? 15*1000;
     }
@@ -73,8 +74,12 @@ export class NostrMessenger implements Messenger {
             relay = await this.pool.ensureRelay(relayUrl);
         } catch (e) {
             console.error("NostrMessenger: connectRelay("+relayUrl+"): Error on relay connection: ", e);
+            this.pool.close([relayUrl]);
             setTimeout(() => this.connectRelay(relayUrl), this.reconnectTimeout);
             return;
+        }
+        relay.onclose = () => {
+            console.error("NostrMessenger: connectRelay("+relayUrl+"): Connection closed!");
         }
         relay.subscribe([{kinds: [KINDS[this.network]]}], {
             onevent: (event) => {
@@ -89,6 +94,7 @@ export class NostrMessenger implements Messenger {
             },
             onclose: (reason: string) => {
                 console.error("NostrMessenger: connectRelay("+relayUrl+"): Error on relay subscription: "+reason);
+                this.pool.close([relayUrl]);
                 setTimeout(() => this.connectRelay(relayUrl), this.reconnectTimeout);
             }
         });

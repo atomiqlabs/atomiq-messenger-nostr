@@ -25,7 +25,8 @@ class NostrMessenger {
         this.relays = relays;
         this.pool = new abstract_pool_1.AbstractSimplePool({
             websocketImplementation: options?.wsImplementation,
-            verifyEvent: pure_2.verifyEvent
+            verifyEvent: pure_2.verifyEvent,
+            enablePing: true
         });
         this.reconnectTimeout = options?.reconnectTimeout ?? 15 * 1000;
     }
@@ -59,9 +60,13 @@ class NostrMessenger {
         }
         catch (e) {
             console.error("NostrMessenger: connectRelay(" + relayUrl + "): Error on relay connection: ", e);
+            this.pool.close([relayUrl]);
             setTimeout(() => this.connectRelay(relayUrl), this.reconnectTimeout);
             return;
         }
+        relay.onclose = () => {
+            console.error("NostrMessenger: connectRelay(" + relayUrl + "): Connection closed!");
+        };
         relay.subscribe([{ kinds: [KINDS[this.network]] }], {
             onevent: (event) => {
                 if (this.messageDeduplicator.isDuplicate(event.id))
@@ -77,6 +82,7 @@ class NostrMessenger {
             },
             onclose: (reason) => {
                 console.error("NostrMessenger: connectRelay(" + relayUrl + "): Error on relay subscription: " + reason);
+                this.pool.close([relayUrl]);
                 setTimeout(() => this.connectRelay(relayUrl), this.reconnectTimeout);
             }
         });
