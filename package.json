@@ -24,7 +24,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@atomiqlabs/base": "github:atomiqlabs/atomiq-base#ab/signed-txs",
+    "@atomiqlabs/base": "github:atomiqlabs/atomiq-base#develop",
     "nostr-tools": "^2.19.4",
     "ws": "^8.18.3"
   },
