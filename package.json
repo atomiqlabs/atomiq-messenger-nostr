@@ -24,7 +24,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@atomiqlabs/base": "github:atomiqlabs/atomiq-base#develop",
+    "@atomiqlabs/base": "^13.0.4",
     "nostr-tools": "^2.19.4",
     "ws": "^8.18.3"
   },
