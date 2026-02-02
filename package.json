@@ -1,11 +1,13 @@
 {
   "name": "@atomiqlabs/messenger-nostr",
-  "version": "1.0.2",
+  "version": "2.0.1",
   "description": "",
   "main": "./dist/index.js",
   "types:": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:ts4": "npx -p typescript@4.9 tsc --noEmit",
+    "build:ts5": "npx -p typescript@5.9 tsc --noEmit"
   },
   "files": [
     "/dist",
@@ -22,11 +24,13 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@atomiqlabs/base": "^12.0.1",
-    "nostr-tools": "^2.19.4",
+    "@atomiqlabs/base": "^13.0.4",
+    "nostr-tools": "2.20.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@types/node": "^24.5.2"
+    "@types/node": "^24.5.2",
+    "@types/ws": "^8.18.1",
+    "typescript": ">=4"
   }
 }
