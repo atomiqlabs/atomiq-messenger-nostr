@@ -12,6 +12,12 @@ const KINDS = {
     [BitcoinNetwork.REGTEST]: 28646,
 };
 
+/**
+ * Nostr-based messenger for data propagation. Broadcasts messages as Nostr notes and allows watchtowers to subscribe
+ *  to these notes as messages.
+ *
+ * @category Messenger
+ */
 export class NostrMessenger implements Messenger {
 
     network: BitcoinNetwork;
@@ -40,10 +46,16 @@ export class NostrMessenger implements Messenger {
         this.reconnectTimeout = options?.reconnectTimeout ?? 15*1000;
     }
 
+    /**
+     * @inheritDoc
+     */
     warmup() {
         return Promise.any(this.relays.map(relay => this.pool.ensureRelay(relay))).then(val => {});
     }
 
+    /**
+     * @inheritDoc
+     */
     async broadcast(msg: Message): Promise<void> {
         const signedEvent = finalizeEvent({
             kind: KINDS[this.network],
@@ -56,11 +68,17 @@ export class NostrMessenger implements Messenger {
 
     private stopped = true;
 
+    /**
+     * @inheritDoc
+     */
     init(): Promise<void> {
         this.stopped = false;
         return Promise.resolve(undefined);
     }
 
+    /**
+     * @inheritDoc
+     */
     stop(): Promise<void> {
         this.stopped = true;
         this.pool.destroy();
@@ -108,12 +126,18 @@ export class NostrMessenger implements Messenger {
         await Promise.all(this.relays.map(relay => this.connectRelay(relay)));
     }
 
+    /**
+     * @inheritDoc
+     */
     async subscribe(callback: (msg: Message) => void): Promise<void> {
         if(this.stopped) throw new Error("Already stopped or not initialized!");
         await this.initSubscribe();
         this.callbacks.push(callback);
     }
 
+    /**
+     * @inheritDoc
+     */
     unsubscribe(callback: (msg: Message) => void): Promise<boolean> {
         const position = this.callbacks.indexOf(callback);
         if(position===-1) return Promise.resolve(false);
