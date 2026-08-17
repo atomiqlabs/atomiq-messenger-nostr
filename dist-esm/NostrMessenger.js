@@ -9,6 +9,12 @@ const KINDS = {
     [BitcoinNetwork.TESTNET4]: 28645,
     [BitcoinNetwork.REGTEST]: 28646,
 };
+/**
+ * Nostr-based messenger for data propagation. Broadcasts messages as Nostr notes and allows watchtowers to subscribe
+ *  to these notes as messages.
+ *
+ * @category Messenger
+ */
 export class NostrMessenger {
     constructor(network, relays, options) {
         this.callbacks = [];
@@ -22,9 +28,15 @@ export class NostrMessenger {
         this.wsImplementation = options.wsImplementation;
         this.reconnectTimeout = options?.reconnectTimeout ?? 15 * 1000;
     }
+    /**
+     * @inheritDoc
+     */
     warmup() {
         return Promise.any(this.relays.map(relay => this.pool.ensureRelay(relay))).then(val => { });
     }
+    /**
+     * @inheritDoc
+     */
     async broadcast(msg) {
         const signedEvent = finalizeEvent({
             kind: KINDS[this.network],
@@ -48,6 +60,9 @@ export class NostrMessenger {
         });
         this.stopped = false;
     }
+    /**
+     * @inheritDoc
+     */
     stop() {
         this.stopped = true;
         this.pool?.destroy();
@@ -95,12 +110,18 @@ export class NostrMessenger {
         this.subscribed = true;
         await Promise.all(this.relays.map(relay => this.connectRelay(relay)));
     }
+    /**
+     * @inheritDoc
+     */
     async subscribe(callback) {
         if (this.stopped)
             throw new Error("Already stopped or not initialized!");
         await this.initSubscribe();
         this.callbacks.push(callback);
     }
+    /**
+     * @inheritDoc
+     */
     unsubscribe(callback) {
         const position = this.callbacks.indexOf(callback);
         if (position === -1)
