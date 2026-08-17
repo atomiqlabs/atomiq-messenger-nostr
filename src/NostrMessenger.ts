@@ -2,7 +2,7 @@ import {BitcoinNetwork, Message, Messenger} from "@atomiqlabs/base";
 import {finalizeEvent, generateSecretKey} from "nostr-tools/pure";
 import {verifyEvent} from "nostr-tools/pure";
 import {AbstractRelay, Subscription} from "nostr-tools/abstract-relay";
-import {MessageDeduplicator} from "./MessageDeduplicator";
+import {MessageDeduplicator} from "./MessageDeduplicator.js";
 import {AbstractSimplePool} from "nostr-tools/abstract-pool";
 
 const KINDS = {
@@ -23,8 +23,9 @@ export class NostrMessenger implements Messenger {
     network: BitcoinNetwork;
     secretKey: Uint8Array;
     relays: string[];
-    pool: AbstractSimplePool;
+    pool!: AbstractSimplePool;
     reconnectTimeout: number;
+    private wsImplementation?: typeof WebSocket;
 
     callbacks: ((msg: Message) => void)[] = [];
     messageDeduplicator: MessageDeduplicator = new MessageDeduplicator();
@@ -34,15 +35,10 @@ export class NostrMessenger implements Messenger {
         wsImplementation?: typeof WebSocket
     }) {
         options ??= {};
-        options.wsImplementation ??= typeof window !== "undefined" && typeof window.WebSocket !== "undefined" ? window.WebSocket : require("ws");
         this.network = network;
         this.secretKey = generateSecretKey();
         this.relays = relays;
-        this.pool = new AbstractSimplePool({
-            websocketImplementation: options?.wsImplementation,
-            verifyEvent,
-            enablePing: true
-        });
+        this.wsImplementation = options.wsImplementation;
         this.reconnectTimeout = options?.reconnectTimeout ?? 15*1000;
     }
 
@@ -71,9 +67,18 @@ export class NostrMessenger implements Messenger {
     /**
      * @inheritDoc
      */
-    init(): Promise<void> {
+    async init(): Promise<void> {
+        const wsImplementation = this.wsImplementation ?? (
+            typeof window !== "undefined" && typeof window.WebSocket !== "undefined"
+                ? window.WebSocket
+                : (await import("ws")).default as unknown as typeof WebSocket
+        );
+        this.pool = new AbstractSimplePool({
+            websocketImplementation: wsImplementation,
+            verifyEvent,
+            enablePing: true
+        });
         this.stopped = false;
-        return Promise.resolve(undefined);
     }
 
     /**
@@ -81,7 +86,7 @@ export class NostrMessenger implements Messenger {
      */
     stop(): Promise<void> {
         this.stopped = true;
-        this.pool.destroy();
+        this.pool?.destroy();
         return Promise.resolve(undefined);
     }
 

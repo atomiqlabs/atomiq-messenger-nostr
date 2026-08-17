@@ -1,16 +1,42 @@
 {
   "name": "@atomiqlabs/messenger-nostr",
-  "version": "2.0.1",
+  "version": "2.2.0",
   "description": "",
+  "type": "commonjs",
   "main": "./dist/index.js",
-  "types:": "./dist/index.d.ts",
+  "module": "./dist-esm/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist-esm/index.d.ts",
+        "default": "./dist-esm/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "default": "./dist-esm/index.js"
+    },
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "require": "./dist/*.js",
+      "default": "./dist/*.js"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:ts4": "npx -p typescript@4.9 tsc --noEmit",
-    "build:ts5": "npx -p typescript@5.9 tsc --noEmit"
+    "clean": "node -e \"for (const dir of ['dist', 'dist-esm']) require('node:fs').rmSync(dir, {recursive: true, force: true})\"",
+    "build:cjs": "npx -p typescript@5.9 tsc -p tsconfig.json",
+    "build:esm": "npx -p typescript@5.9 tsc -p tsconfig.esm.json && node -e \"require('node:fs').copyFileSync('package.esm.json', 'dist-esm/package.json')\"",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm",
+    "build:ts5": "npx -p typescript@5.9 tsc --noEmit",
+    "prepack": "npm run build"
   },
   "files": [
     "/dist",
+    "/dist-esm",
     "/src"
   ],
   "keywords": [
@@ -31,6 +57,6 @@
   "devDependencies": {
     "@types/node": "^24.5.2",
     "@types/ws": "^8.18.1",
-    "typescript": ">=4"
+    "typescript": ">=5"
   }
 }

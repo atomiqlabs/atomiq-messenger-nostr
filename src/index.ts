@@ -1,1 +1,1 @@
-export * from "./NostrMessenger";
+export * from "./NostrMessenger.js";
